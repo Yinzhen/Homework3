@@ -34,5 +34,5 @@ class Newton(object):
         if fx is None:
             fx = self._f(x)
         Df_x = F.ApproximateJacobian(self._f, x, self._dx)
-        h = N.linalg.solve(N.matrix(Df_x), N.matrix(fx))
+        h = - N.linalg.solve(N.matrix(Df_x), N.matrix(fx))
         return x + h
