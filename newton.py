@@ -26,7 +26,10 @@ class Newton(object):
             if N.linalg.norm(fx) < self._tol:
                 return x
             x = self.step(x, fx)
-        return x
+        if N.linalg.norm(fx) > 1.e-6:
+            raise Exception('Not converge, please re-guess your initial value')
+        else:
+            return x
 
     def step(self, x, fx=None):
         """Take a single step of a Newton method, starting from x
