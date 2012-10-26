@@ -8,7 +8,7 @@ import math as M
 class TestNewton(unittest.TestCase):
     def testLinear(self):
         f = lambda x : 3.0 * x + 6.0
-        solver = newton.Newton(f, tol=1.e-15, maxiter=2)
+        solver = newton.Newton(f, tol=1.e-15, maxiter=20)
         x = solver.solve(2.0)
         self.assertEqual(x, -2.0)
 
@@ -36,6 +36,11 @@ class TestNewton(unittest.TestCase):
         solver = newton.Newton(f, tol = 1.e-15, maxiter = 30)
         x = solver.solve(1.)
         self.assertEqual(x, M.pi/6.)
+
+    def testUsedAnalytical(self):
+        f = lambda x: x**2 - x - 6.0
+        solver = newton.Newton(f, tol = 1, maxiter = 1, dx = 1.e-6, Df = None)
+        x = solver.solve(0.0)
         
 
 if __name__ == "__main__":
