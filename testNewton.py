@@ -39,7 +39,7 @@ class TestNewton(unittest.TestCase):
 
     def testUsedAnalytical(self):
         f = lambda x: x**2 - x - 6.0
-        solver = newton.Newton(f, tol = 1, maxiter = 1, dx = 1.e-6, Df = None)
+        solver = newton.Newton(f, tol = 20, maxiter = 1, dx = 1.e-6, Df = None)
         x = solver.solve(0.0)
 
     def testAnalyticSolution1(self):
@@ -64,6 +64,16 @@ class TestNewton(unittest.TestCase):
         x0 = N.matrix("2.; -3.")
         x = solver.solve(x0)
         N.testing.assert_array_almost_equal(x, N.matrix("0.; -1."))
+
+    def testWithinRadius(self):
+        A = N.matrix("2. 3.; 2. -1.")
+        B = N.matrix("-2.; -3.")
+        f = lambda x: A * x + B
+        solver = newton.Newton(f, tol = 1.e-9, maxiter = 50, dx = 1.e-6, Df = None, r = 20)
+        x0 = N.matrix("0.1; 0.1")
+        x = solver.solve(x0)
+        N.testing.assert_array_almost_equal(x, N.matrix("1.375; -.25"))
+    
         
 
 if __name__ == "__main__":
