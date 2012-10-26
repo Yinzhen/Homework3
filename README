@@ -1,1 +1,179 @@
-This is Readme file
+======================================
+Contributor: Yinzhen Jin
+Course: APC 524 Project 3
+Program: Newton Solver
+This is README instruction
+======================================
+
+This README file details how to run a implementation of a simple root
+ﬁnder (Newton’s method). It is called Newton solver 
+
+The instructions assume that the underlying system is using python; It 
+may not be able to run by other languages. 
+
+The Newton solver contains two files, one is newton.py, the other is function.py
+newton.py is the real solver, function.py is used to solve Jacobian matrix that 
+is used for Newton solver
+
+To use Newton solver for the first time,
+one should
+
+1.  Make a directory for solver:
+copy function.py and newton.py    
+
+2.  In order to use the solver it is better to create a solver.py that can use 
+the Newton Solver.
+
+3. 	In solver.py, you have to first write:
+
+*******************************
+
+#!/usr/bin/env python
+import newton
+
+******************************** 
+
+to use newton class
+
+
+
+4.  In Newton Solver you have 5 input parameters:
+
+f: the function that you want to solve. It needs to be defined in the solver.py
+tol: tolerance for iteration (iterate until |f(x)| < tol), default number is 1.e-6
+maxiter: maximum number of iterations to perform, default number is 20
+dx: step size for computing approximate Jacobian, default number is 1.e-6
+Df: matrix that is used for analytical solution, default is None, using numerical solution
+
+
+5.	The basic format:
+
+
+*********************************
+
+solver = newton.Newton(f, tol = 1.e-8, maxiter = 20, Df = None)
+x = solver.solve(x0)
+
+*********************************
+
+x0 is the initial guess for iterations
+
+
+6.	This Newton solver can solve any converge function numerically and can solve some functions
+with more accurately using analytical Jacobian matrix. To decide whether use analytical Jacobian
+or non-analytical using Df as input to decide
+
+
+7.	To use numerical Jacobian matrix:
+The only thing need to be done is define the function you need to solve such as:
+
+*********************************
+f = lambda x : 3.0 * x + 6.0
+*********************************
+for simple linear
+
+or
+
+*********************************
+def f(x = N.matrix(N.zeros((2,1)))):
+    ans = N.matrix(N.zeros((2,1)))
+    ans[0,0] = 10.0*x[0,0]**2 - x[1,0]**2 - x[0,0] + 1.0
+    ans[1,0] = 2.0*x[0,0] - x[1,0] - 1.0
+    return ans
+*********************************
+for more than one dimension for
+
+#################################
+
+	10*(x^2)-(y^2)-x + 1 = 0
+	2*x - y  = 1
+
+#################################
+
+
+8.	This Newton solver can solve two kinds of equations:
+
+Polynomial:
+
+#################################
+
+	10*(x^2)-(y^2)-x + 1 = 0  (1)
+	2*x - y  = 1              (2)
+
+#################################
+
+Like the equations above, you have to change to Df to list[]
+Df = ["Polynomial", df[0], df[1]]:
+"Polynomial" is to tell the solver the analytical solution for polynomial solution
+df[0] is to store information in equation (1)
+df[1] is to store all information in equation (2)
+if you have more than 2 euquations, you will have to define df[2], df[3],...
+
+* df[i] is a list contains two matrix:
+* The first matrix is to store all coeffecients.
+* The second matrix is to store all orders for very variables
+
+for example, for equation (1):
+There are three terms except constant with 2 variable x, y. They are:
+
+10*(x^2), -y^2, -x
+
+The coefficients are 10 -1 -1, thus the first matrix should be N.matrix("10.0, -1.0, -1.0")
+
+For x, the power in three terms are 2 0 1 
+For y, the power in three terms are 0 2 0
+Thus the second matrix should be N.matrix("2.0, 0, 1.0; 0.0, 2.0, 0.0")]
+
+To sum up Df can be constructed by following:
+
+*********************************
+df = []
+df.append([N.matrix("10.0, -1.0, -1.0"), N.matrix("2.0, 0, 1.0; 0.0, 2.0, 0.0")])
+df.append([N.matrix("2.0, -1.0"), N.matrix("1.0, 0.0; 0.0, 1.0")])
+solver = newton.Newton(f, tol = 1.e-9, maxiter = 40, dx = 1.e-6, Df = ["Polynomial", df[0], df[1]])
+*********************************
+
+
+Simple Complex:
+
+This solver can also function as following:
+
+#################################
+
+sin(x) + 2.0*cos(y) - x^2 = 0 (1)
+3*tan(x) - tan(y) = 0		  (2)
+
+#################################
+
+The way to construct Df is a little different:
+
+still Df has the format:
+Df = ["SimpleComplex", df[0], df[1]]
+but here df store all information for different equations. 
+
+for above system functions there are two equations, if there are more we will have df[2], df[3], ...
+
+for example for df[0], we have two equations thus there are two list in df[0], every list contains dictionaries for each variables:
+
+equation (1) for x, we have sin(x) and -x^2, the list for that equation is {"sin": 1, 2: -1},
+"sin" and "2" are the operators, 1, -1 are the corresponding coeffecients. The left term is for y which is {"cos": 2}, thus df[0] = [{"sin": 1, 2: -1}, {"cos": 2}] if we have another varibale we will have
+ df[0] = [{}, {}, {}]
+
+
+*********************************
+df = []
+df.append([{"sin": 1, 2: -1}, {"cos": 2}])
+df.append([{"tan": 3}, {"tan": -1}])
+Df = ["SimpleComplex", df[0], df[1]]
+*********************************
+
+
+9.	There is another input in Newton solver which is r, by default 20000
+It is used to test condition that the approximated root must lie within a radius r of theinitial guess x0, or the iteration loop raises an exception. You can add some value and see whether your initial guess will lie within the radius
+
+
+
+
+
+
+
