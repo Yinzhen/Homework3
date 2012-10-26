@@ -43,6 +43,26 @@ class TestFunctions(unittest.TestCase):
         A = N.matrix("8. 19.; -4. 4.")
         N.testing.assert_array_almost_equal(Df_x, A)
 
+    def testCompare(self):
+        def f(x = N.matrix(N.zeros((2,1)))):
+            ans = N.matrix(N.zeros((2,1)))
+            ans[0,0] = x[0,0]**2 + 4.0*x[1,0]**2
+            ans[1,0] = -2.0*x[0,0]**2 + x[1,0]**2
+            return ans
+        x0 = N.matrix("1.; 2.")
+        dx = 1.e-8
+       
+        x = []
+        x.append([N.matrix("1.0, 4.0"), N.matrix("2.0, 0.0; 0.0, 2.0")])
+        x.append([N.matrix("-2.0, 1.0"), N.matrix("2.0, 0.0; 0.0, 2.0")])
+
+        Df_x = F.AnalyticJacobian(x0, dx, ["Polynomial", x[0], x[1]])
+        Df_x_A = F.ApproximateJacobian(f, x0, dx)
+
+        N.testing.assert_array_almost_equal(Df_x, Df_x_A)
+
+        
+
 
 if __name__ == '__main__':
     unittest.main()
