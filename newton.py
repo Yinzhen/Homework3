@@ -7,7 +7,7 @@ import numpy as N
 import functions as F
 
 class Newton(object):
-    def __init__(self, f, tol=1.e-6, maxiter=20, dx=1.e-6):
+    def __init__(self, f, tol=1.e-6, maxiter=20, dx=1.e-6, Df = None):
         """Return a new object to find roots of f(x) = 0 using Newton's method.
         tol:     tolerance for iteration (iterate until |f(x)| < tol)
         maxiter: maximum number of iterations to perform
@@ -16,6 +16,7 @@ class Newton(object):
         self._tol = tol
         self._maxiter = maxiter
         self._dx = dx
+        self._Df = Df
 
     def solve(self, x0):
         """Return a root of f(x) = 0, using Newton's method, starting from
@@ -28,7 +29,6 @@ class Newton(object):
             x = self.step(x, fx)
         try:
             N.linalg.norm(fx) < self._tol
-            print N.linalg.norm(fx)
             raise NameError('Not converge')
         except NameError:
             print "Not converged with the initial guess in the maximum iterations"
@@ -39,6 +39,14 @@ class Newton(object):
         If the argument fx is provided, assumes fx = f(x)"""
         if fx is None:
             fx = self._f(x)
-        Df_x = F.ApproximateJacobian(self._f, x, self._dx)
-        h = - N.linalg.solve(N.matrix(Df_x), N.matrix(fx))
-        return x + h
+        if self._Df == None:
+            Df_x = F.ApproximateJacobian(self._f, x, self._dx)
+        else:
+            function = self._Df
+            Df_x = F.AnalyticJacobian(x, self._dx, function)
+        
+        if N.linalg.det(Df_x) == 0.0:
+            raise Exception('Singular Jacobian matrix, please re-guess your initial value')
+        else:
+            h = - N.linalg.solve(N.matrix(Df_x), N.matrix(fx))
+            return x + h
